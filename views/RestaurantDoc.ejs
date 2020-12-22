@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 <meta charset="utf-8">
-<title><%=doc.name%></title>
+<title>Resaurant Details</title>
 <style>
   /* Always set the map height explicitly to define the size of the div
    * element that contains the map. */
@@ -19,9 +19,7 @@
 <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
 </head>
 <body>
-<script>
-function goBack() {window.history.back();}
-</script>
+  
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp36-mp_8b8&callback=loadMap"></script>
 <div class="w3-container w3-teal">
@@ -45,6 +43,7 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp3
       <% } %>
   </ol>
 
+
   <label class="w3-label w3-validate">Photo : </label></p>
   <img class="w3-image w3-border w3-padding" style="width:100%" src="data:image/jpg;base64,<%=doc.photo%>" >
 <p>
@@ -64,7 +63,11 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp3
 <a href="/remove?_id=<%= doc._id %>" style="text-decoration: none">
   <button class="w3-btn w3-section w3-teal w3-ripple">Delete</button>
 </a>
-<button class="w3-btn w3-section w3-teal w3-ripple" onclick="goBack()">Go Back</button>
+
+<a href="/" style="text-decoration: none">
+  <button class="w3-btn w3-section w3-teal w3-ripple">Back</button>
+</a>
+
 </div>
 </body>
 </html>

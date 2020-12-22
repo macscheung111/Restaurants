@@ -173,12 +173,11 @@ const findDocument = (db, criteria, callback) => {
 }
 
 const insertDocument = (db, RestaurantDoc, callback) => {
-    let cursor = db.collection('Restaurants').insert(RestaurantDoc);
+     db.collection('Restaurants').insert(RestaurantDoc);
     console.log(`Document to insert : ${JSON.stringify(RestaurantDoc)}`);
-    cursor.toArray((err, docs) => {
-        assert.equal(err, null);
-        callback(docs); // pass the result(array) to the callback function(caller's)
-    });
+    
+        callback(RestaurantDoc); // pass the result(array) to the callback function(caller's)
+
 }
 
 
@@ -233,9 +232,19 @@ const handle_Details = (req, res, criteria) => {
 
 
 const handle_Insert = (req, res, newDoc) => {
-    res.status(200).render('RestaurantDoc', {
-        doc: newDoc,
-        name:req.session.username
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+        insertDocument(db,newDoc,(docs)=>{
+            client.close();
+            console.log("Closed DB connection");
+            res.status(200).render('RestaurantDoc', {
+                doc: docs,
+                name:req.session.username
+            });
+        });
     });
 }
 
