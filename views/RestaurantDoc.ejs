@@ -54,7 +54,7 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp3
   <a href="/gmap?lat=<%=doc.address.coord[0]%>&lon=<%=doc.address.coord[1]%>&title=<%=doc.name%>">Map</a>
 
 <div class="w3-container">
-<a href="/rate?_id=5<%= doc._id %>&ampname=<%=doc.name%>" style="text-decoration: none">
+<a href="/rate?_id=<%= doc._id %>&ampname=<%=doc.name%>" style="text-decoration: none">
     <button class="w3-btn w3-section w3-teal w3-ripple">Rate</button>
 </a>
 <a href="/change?_id=<%= doc._id %>" style="text-decoration: none">

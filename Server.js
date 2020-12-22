@@ -9,6 +9,7 @@ const http = require('http');
 const url = require('url');
 const formidable = require('formidable');
 const fs = require("fs");
+const { Certificate } = require('crypto');
 
 const mongourl = 'mongodb+srv://macs111:1997111@cluster0.zkyft.mongodb.net/381Project?retryWrites=true&w=majority';
 const dbName = '381Project';
@@ -153,6 +154,12 @@ app.post("/insert", (req, res) => {
 });
 
 
+app.post("/rate",(req,res)=>{
+    let criteria ={"_id":req.query._id};
+    let newRate = {"grade":req.query.score ,"user":req.session.username }
+
+    findDocument(req,criteria,callback) 
+});
 
 
 
@@ -192,10 +199,6 @@ const handle_Find = (req, res, criteria) => {
 
         findDocument(db, criteria, (docs) => {
             client.close();
-            console.log("Closed DB connection");
-            console.log(docs);
-            console.log("documents found: " + docs.length);
-            console.log("req.session.name :" + req.session.username)
             res.status(200).render('welcomePage', {
                 name: req.session.username,
                 length: docs.length,
@@ -250,7 +253,9 @@ const handle_Insert = (req, res, newDoc) => {
 
 
 
+const handleRate=  (req,res)=>{
 
+}
 
 
 
