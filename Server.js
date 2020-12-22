@@ -233,7 +233,6 @@ const handle_Details = (req, res, criteria) => {
 
 
 const handle_Insert = (req, res, newDoc) => {
-
     res.status(200).render('RestaurantDoc', {
         doc: newDoc,
         name:req.session.username
