@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 <meta charset="utf-8">
-<title>Doutor</title>
+<title><%=doc.name%></title>
 <style>
   /* Always set the map height explicitly to define the size of the div
    * element that contains the map. */
@@ -34,14 +34,14 @@ function loadMap ()
   var marker = new google.maps.Marker({
      position: myLatLng,
      map: map,
-     title: 'Doutor'
+     title: doc.name //here
   });
 }
 </script>
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp36-mp_8b8&callback=loadMap"></script>
 <div class="w3-container w3-teal">
-  <h1>Doutor</h1>
+  <h1><%=doc.name%></h1>
 
   <!-- img here -->
 </div>

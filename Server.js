@@ -150,11 +150,11 @@ app.post("/insert", (req, res) => {
                 assert.equal(err,null);
                  document["photo"] =  new Buffer.from(data).toString('base64');
                  document["photo mimetype"] = files.fileToUpload.type;
+                 console.log("document to insert : "+ JSON.stringify(document));
             });
         }
     
     });
-    console.log("document to insert : "+ JSON.stringify(document));
     res.status(200).render('InsertRestaurant');
 });
 
