@@ -8,6 +8,7 @@ const assert = require('assert');
 const http = require('http');
 const url = require('url');
 const formidable = require('formidable');
+const fs = require("fs");
 
 const mongourl = 'mongodb+srv://macs111:1997111@cluster0.zkyft.mongodb.net/381Project?retryWrites=true&w=majority';
 const dbName = '381Project';
@@ -139,13 +140,18 @@ app.post("/insert", (req, res) => {
         aGrade["createdBy"]=req.session.username;
         document["grades"] = [files.aGrade];
         document["owner"] = req.session.username;
-        if (files.fileToUpload.size > 0) {
-            fs.readFile(files.filetoupload.path, (err,data) => {
-                assert.equal(err,null);
-                 document["photo"] =  new Buffer.from(data).toString('base64');
-                 document["photo mimetype"]= files.fileToUpload.type;
-            });
-        }
+
+        console.log("fields: "+JSON.stringify(fields));
+        console.log("files: "+JSON.stringify(files));
+        console.log("files.filetoupload.path: "+JSON.stringify(files.filetoupload.path));
+
+        // if (files.fileToUpload.size > 0) {
+        //     fs.readFile(files.filetoupload.path, (err,data) => {
+        //         assert.equal(err,null);
+        //          document["photo"] =  new Buffer.from(data).toString('base64');
+        //          document["photo mimetype"] = files.fileToUpload.type;
+        //     });
+        // }
     
     });
     console.log("document to insert : "+ JSON.stringify(document));
