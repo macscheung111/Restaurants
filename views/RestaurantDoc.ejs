@@ -22,22 +22,6 @@
 <script>
 function goBack() {window.history.back();}
 </script>
-<script>
-function loadMap ()
-{
-  var myLatLng = {lat: doc.address.coord[0], lng: doc.address.coord[1]};
-  //var myLatLng = new google.maps.LatLng({lat: 35.691780, lng: 139.699367});
-  var map = new google.maps.Map(document.getElementById("map"),{
-        zoom: 18,
-        center: myLatLng
-  });
-  var marker = new google.maps.Marker({
-     position: myLatLng,
-     map: map,
-     title: doc.name //here
-  });
-}
-</script>
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp36-mp_8b8&callback=loadMap"></script>
 <div class="w3-container w3-teal">
@@ -62,27 +46,21 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp3
       <% } %>
   </ol>
 
-</p>
-<p> <%if(doc.Photo!==null){ %>
-  <label class="w3-label w3-validate">Photo :</label>
-  <img class="w3-image w3-border w3-padding" style="width:100%" src="data: image/jpeg;base64, <%=img64%>">
-<% } %>
-</p>
-
-<label class="w3-label w3-validate">Created by: </label> <%=doc.owner%> </p>
+<p>
+<label class="w3-label w3-validate">Created by: </label> <%=name%> </p>
 <p>
 </div>
 
-  <a href="/gmap?lat=35.691780&lon=139.699367&title=Doutor">Map</a>
+  <a href="/gmap?lat=<%=doc.address.coord[0]%>&lon=<%=doc.address.coord[1]%>&title=<%=doc.name%>">Map</a>
 
 <div class="w3-container">
-<a href="/rate?_id=5f7314c9146362099ddb7c8a&ampname=Doutor" style="text-decoration: none">
+<a href="/rate?_id=5<%= doc._id %>&ampname=<%=doc.name%>" style="text-decoration: none">
     <button class="w3-btn w3-section w3-teal w3-ripple">Rate</button>
 </a>
-<a href="/change?_id=5f7314c9146362099ddb7c8a" style="text-decoration: none">
+<a href="/change?_id=<%= doc._id %>" style="text-decoration: none">
   <button class="w3-btn w3-section w3-teal w3-ripple">Edit</button>
 </a>
-<a href="/remove?_id=5f7314c9146362099ddb7c8a" style="text-decoration: none">
+<a href="/remove?_id=<%= doc._id %>" style="text-decoration: none">
   <button class="w3-btn w3-section w3-teal w3-ripple">Delete</button>
 </a>
 <button class="w3-btn w3-section w3-teal w3-ripple" onclick="goBack()">Go Back</button>
