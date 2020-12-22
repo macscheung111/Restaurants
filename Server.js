@@ -143,15 +143,15 @@ app.post("/insert", (req, res) => {
 
         console.log("fields: "+JSON.stringify(fields));
         console.log("files: "+JSON.stringify(files));
-        console.log("files.filetoupload.path: "+JSON.stringify(files.filetoupload.path));
+        console.log("files.filetoupload: "+files.fileToUpload.size);
 
-        // if (files.fileToUpload.size > 0) {
-        //     fs.readFile(files.filetoupload.path, (err,data) => {
-        //         assert.equal(err,null);
-        //          document["photo"] =  new Buffer.from(data).toString('base64');
-        //          document["photo mimetype"] = files.fileToUpload.type;
-        //     });
-        // }
+        if (files.fileToUpload.size > 0) {
+            fs.readFile(files.fileToUpload.path, (err,data) => {
+                assert.equal(err,null);
+                 document["photo"] =  new Buffer.from(data).toString('base64');
+                 document["photo mimetype"] = files.fileToUpload.type;
+            });
+        }
     
     });
     console.log("document to insert : "+ JSON.stringify(document));
