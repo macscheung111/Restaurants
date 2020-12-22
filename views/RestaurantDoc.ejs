@@ -25,7 +25,7 @@ function goBack() {window.history.back();}
 <script>
 function loadMap ()
 {
-  var myLatLng = {lat: doc.address.coord[0], lng: doc.address.coord[2]};
+  var myLatLng = {lat: doc.address.coord[0], lng: doc.address.coord[1]};
   //var myLatLng = new google.maps.LatLng({lat: 35.691780, lng: 139.699367});
   var map = new google.maps.Map(document.getElementById("map"),{
         zoom: 18,
@@ -62,8 +62,14 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp3
       <% } %>
   </ol>
 
-<p>
-<label class="w3-label w3-validate">Created by: </label> <%=name%> </p>
+</p>
+<p> <%if(doc.Photo!==null){ %>
+  <label class="w3-label w3-validate">Photo :</label>
+  <img class="w3-image w3-border w3-padding" style="width:100%" src="data: image/jpeg;base64, <%=img64%>">
+<% } %>
+</p>
+
+<label class="w3-label w3-validate">Created by: </label> <%=doc.owner%> </p>
 <p>
 </div>
 

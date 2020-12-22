@@ -114,14 +114,10 @@ app.get('/display', (req, res) => {
 
 app.get("/newDoc", (req, res) => {
     res.status(200).render('InsertRestaurant');
-    // console.log("req.query : " + req.query);
-    //handle_Insert(req,res);
 });
 
 app.post("/insert", (req, res) => {
-
     var document = {};
-
     var form = new formidable.IncomingForm();
     form.parse(req,(err,fields,files) => {
 
@@ -137,13 +133,13 @@ app.post("/insert", (req, res) => {
         document["address"]= address;
         var aGrade = {};
         aGrade["grade"]= files.grade;
-        aGrade["createdBy"]=req.session.username;
-        document["grades"] = [files.aGrade];
+        aGrade["user"]=req.session.username;
+        document["grades"] = [aGrade];
         document["owner"] = req.session.username;
 
-        console.log("fields: "+JSON.stringify(fields));
-        console.log("files: "+JSON.stringify(files));
-        console.log("files.filetoupload: "+files.fileToUpload.size);
+        // console.log("fields: "+JSON.stringify(fields));
+        // console.log("files: "+JSON.stringify(files));
+        // console.log("files.filetoupload: "+files.fileToUpload.size);
 
         if (files.fileToUpload.size > 0) {
             fs.readFile(files.fileToUpload.path, (err,data) => {
@@ -155,7 +151,7 @@ app.post("/insert", (req, res) => {
         }
     
     });
-    res.status(200).render('InsertRestaurant');
+    handle_Insert(req,res,document);
 });
 
 
@@ -239,20 +235,10 @@ const handle_Details = (req, res, criteria) => {
 
 
 const handle_Insert = (req, res, newDoc) => {
-    const client = new MongoClient(mongourl);
-    client.connect((err) => {
-        assert.equal(null, err);
-        console.log("Connected successfully to server");
-        const db = client.db(dbName);
-        client.close();
-        console.log("Closed DB connection");
-        console.log("req.query: " + JSON.stringify(req.query))
-        res.status(200).render('InsertRestaurant', {
-            doc: docs[0],
-            name: req.session.username
-        });
-
-    });
+    console.log("newDoc: "+JSON.stringify(newDoc));
+    // res.status(200).render('RestaurantDoc',{
+    //     "doc":newDoc
+    // });
 }
 
 
