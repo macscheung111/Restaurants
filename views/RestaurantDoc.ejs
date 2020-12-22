@@ -17,7 +17,6 @@
   }
 </style>
 <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
-<stype
 </head>
 <body>
 <script>
@@ -26,7 +25,7 @@ function goBack() {window.history.back();}
 <script>
 function loadMap ()
 {
-  var myLatLng = {lat: 35.691780, lng: 139.699367};
+  var myLatLng = {lat: doc.address.coord[0], lng: doc.address.coord[2]};
   //var myLatLng = new google.maps.LatLng({lat: 35.691780, lng: 139.699367});
   var map = new google.maps.Map(document.getElementById("map"),{
         zoom: 18,
@@ -49,24 +48,22 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp3
 
 <div class="w3-container">
 <p>
-<label class="w3-label w3-validate">Borough: </label></p>
-<label class="w3-label w3-validate">Cuisine: </label>Cafe</p>
-<label class="w3-label w3-validate">Street: </label></p>
-<label class="w3-label w3-validate">Building: </label></p>
-<label class="w3-label w3-validate">Zipcode: </label></p>
-<label class="w3-label w3-validate">GPS: </label>[139.699367,35.691780]</p>
+<label class="w3-label w3-validate">Borough: </label><%=doc.borough%></p>
+<label class="w3-label w3-validate">Cuisine: </label><%=doc.cuisine%></p>
+<label class="w3-label w3-validate">Street: </label><%=doc.address.street%></p>
+<label class="w3-label w3-validate">Building: </label><%=doc.address.building%></p>
+<label class="w3-label w3-validate">Zipcode: </label><%=doc.address.zipcode%></p>
+<label class="w3-label w3-validate">GPS: </label>[<%=doc.address.coord[0]%> , <%=doc.address.coord[1]%> ]</p>
 <label class="w3-label w3-validate">Rating: </label></p>
 
   <ol>
-
-      <li>10 (rso) </li>
-
-      <li>2 (demo) </li>
-
+    <%for(eachScore of doc.grades)  { %>
+      <li><%= eachScore.score%> (  <%=name%>  ) </li>
+      <% } %>
   </ol>
 
 <p>
-<label class="w3-label w3-validate">Created by: </label>rso</p>
+<label class="w3-label w3-validate">Created by: </label> <%=name%> </p>
 <p>
 </div>
 

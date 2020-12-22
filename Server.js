@@ -7,6 +7,7 @@ const ObjectID = require('mongodb').ObjectID;
 const assert = require('assert');
 const http = require('http');
 const url = require('url');
+const formidable = require('formidable');
 
 const mongourl = 'mongodb+srv://macs111:1997111@cluster0.zkyft.mongodb.net/381Project?retryWrites=true&w=majority';
 const dbName = '381Project';
@@ -40,7 +41,7 @@ app.get('/', (req, res) => {
     if (!req.session.authenticated) { // user not logged in --> variable "authenticated" inside authcookie session is not exist (null)
         res.redirect('/login');
     } else {
-        handle_Find(req,res,{});
+        handle_Find(req, res, {});
     }
 });
 
@@ -70,64 +71,99 @@ app.get('/logout', (req, res) => {
 // new code here
 
 
-
-
-
-
-
-
-
-
 // handle search
 app.get('/search', (req, res) => {
-    // var parsedURL = url.parse(req.url, true);
-    // console.log("parsedURL.query: " + JSON.stringify(parsedURL.query));
-    // let criteria = {};
-    // let inputText = parsedURL.query.inputCriteria;
-    // let option = parsedURL.query.options;
-    // criteria[option] = inputText; // {name:"xxx"}
-
-    
-    // if (inputText.length == 0 && option === "all") {
-    //      handle_Find(req, res, {});
-    // } else if (inputText.length > 0 && option !== "all") {
-    //     handle_Find(req, res, criteria);
-    // } else {
-    //     console.log("enter wrong")
-    // }
-    if(req.query.options==="all"){
+    if (req.query.options === "all") {
         console.log("all");
-        handle_Find(req, res, {}); 
-    }else if(req.query.options==="name"){
-        if(req.query.inputCriteria===""){
-            handle_Find(req, res, {}); 
-        }else{
-        handle_Find(req, res, {"name":req.query.inputCriteria}); 
+        handle_Find(req, res, {});
+    } else if (req.query.options === "name") {
+        if (req.query.inputCriteria === "") {
+            handle_Find(req, res, {});
+        } else {
+            handle_Find(req, res, {
+                "name": req.query.inputCriteria
+            });
         }
-    }else if(req.query.options==="borough"){
-        if(req.query.inputCriteria===""){
-            handle_Find(req, res, {}); 
+    } else if (req.query.options === "borough") {
+        if (req.query.inputCriteria === "") {
+            handle_Find(req, res, {});
+        } else {
+            handle_Find(req, res, {
+                "borough": req.query.inputCriteria
+            });
         }
-        else{
-        handle_Find(req, res, {"borough":req.query.inputCriteria}); 
-        }
-    }else if(req.query.options==="cuisine"){
-        if(req.query.inputCriteria===""){
-            handle_Find(req, res, {}); 
-        }else{
-        handle_Find(req, res, {"cuisine":req.query.inputCriteria}); 
+    } else if (req.query.options === "cuisine") {
+        if (req.query.inputCriteria === "") {
+            handle_Find(req, res, {});
+        } else {
+            handle_Find(req, res, {
+                "cuisine": req.query.inputCriteria
+            });
         }
     }
-
-
-
-
-
 });
+
+
+
+// handle detail
+app.get('/display', (req, res) => {
+    handle_Details(req, res, req.query)
+});
+
+
+app.get("/newDoc", (req, res) => {
+    res.status(200).render('InsertRestaurant');
+    // console.log("req.query : " + req.query);
+    //handle_Insert(req,res);
+});
+
+app.post("/insert", (req, res) => {
+
+    var document = {};
+
+    var form = new formidable.IncomingForm();
+    form.parse(req,(err,fields,files) => {
+
+       
+        document["name"]= fields.name;
+        document["cuisine"]= fields.cuisine;
+        document["borough"]= fields.borough;
+        var address={};
+        address["street"]= fields.street;
+        address["zipcode"] = fields.zipcode;
+        address["building"]= fields.building;
+        address ["coord"]=[fields.lon , fields.lat];
+        document["address"]= address;
+        var aGrade = {};
+        aGrade["grade"]= files.grade;
+        aGrade["createdBy"]=req.session.username;
+        document["grades"] = [files.aGrade];
+        document["owner"] = req.session.username;
+        if (files.fileToUpload.size > 0) {
+            fs.readFile(files.filetoupload.path, (err,data) => {
+                assert.equal(err,null);
+                 document["photo"] =  new Buffer.from(data).toString('base64');
+                 document["photo mimetype"]= files.fileToUpload.type;
+            });
+        }
+    
+    });
+    console.log("document to insert : "+ JSON.stringify(document));
+    res.status(200).render('InsertRestaurant');
+});
+
+
+
+
+
+
+
+
+
 
 // --------------------------  CRUD operations  ---------------------------------------
 
-const findDocument =  (db, criteria, callback) => {
+const findDocument = (db, criteria, callback) => {
     let cursor = db.collection('Restaurants').find(criteria);
     console.log(`findDocument criteria: ${JSON.stringify(criteria)}`);
     cursor.toArray((err, docs) => {
@@ -136,8 +172,19 @@ const findDocument =  (db, criteria, callback) => {
     });
 }
 
+const insertDocument = (db, RestaurantDoc, callback) => {
+    let cursor = db.collection('Restaurants').insert(RestaurantDoc);
+    console.log(`Document to insert : ${JSON.stringify(RestaurantDoc)}`);
+    cursor.toArray((err, docs) => {
+        assert.equal(err, null);
+        callback(docs); // pass the result(array) to the callback function(caller's)
+    });
+}
 
-const handle_Find =  (req ,res, criteria) => {
+
+// ---------------------------------------------------------------------------------------
+
+const handle_Find = (req, res, criteria) => {
     const client = new MongoClient(mongourl);
     client.connect((err) => {
         assert.equal(null, err);
@@ -148,16 +195,68 @@ const handle_Find =  (req ,res, criteria) => {
             client.close();
             console.log("Closed DB connection");
             console.log(docs);
-            console.log("documents found: "+ docs.length);
-            console.log("req.session.name :"+req.session.username)
-            res.status(200).render('welcomePage',{
-                name : req.session.username,
+            console.log("documents found: " + docs.length);
+            console.log("req.session.name :" + req.session.username)
+            res.status(200).render('welcomePage', {
+                name: req.session.username,
                 length: docs.length,
                 documents: docs
-            }); 
+            });
         });
     });
 }
+
+
+
+
+const handle_Details = (req, res, criteria) => {
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+
+        /* use Document ID for query */
+        let DOCID = {};
+        DOCID['_id'] = ObjectID(criteria._id)
+        findDocument(db, DOCID, (docs) => { // docs contain 1 document (hopefully)
+            client.close();
+            console.log("Closed DB connection");
+            console.log("docs[0]: " + JSON.stringify(docs[0]));
+            res.status(200).render('RestaurantDoc', {
+                doc: docs[0],
+                name: req.session.username
+            });
+        });
+    });
+}
+
+
+const handle_Insert = (req, res, newDoc) => {
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+        client.close();
+        console.log("Closed DB connection");
+        console.log("req.query: " + JSON.stringify(req.query))
+        res.status(200).render('InsertRestaurant', {
+            doc: docs[0],
+            name: req.session.username
+        });
+
+    });
+}
+
+
+
+
+
+
+
+
+
 
 
 
