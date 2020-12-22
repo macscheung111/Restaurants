@@ -58,7 +58,7 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp3
 
   <ol>
     <%for(eachScore of doc.grades)  { %>
-      <li><%= eachScore.score%> (  <%=name%>  ) </li>
+      <li><%= eachScore.score%> (  <%=eachScore.user%>  ) </li>
       <% } %>
   </ol>
 

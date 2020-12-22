@@ -137,10 +137,6 @@ app.post("/insert", (req, res) => {
         document["grades"] = [aGrade];
         document["owner"] = req.session.username;
 
-        // console.log("fields: "+JSON.stringify(fields));
-        // console.log("files: "+JSON.stringify(files));
-        // console.log("files.filetoupload: "+files.fileToUpload.size);
-
         if (files.fileToUpload.size > 0) {
             fs.readFile(files.fileToUpload.path, (err,data) => {
                 assert.equal(err,null);
@@ -148,10 +144,12 @@ app.post("/insert", (req, res) => {
                  document["photo mimetype"] = files.fileToUpload.type;
                  console.log("document to insert : "+ JSON.stringify(document));
             });
+            handle_Insert(req,res,document);
+        }else{
+            handle_Insert(req,res,document);
         }
     
     });
-    handle_Insert(req,res,document);
 });
 
 
@@ -235,10 +233,9 @@ const handle_Details = (req, res, criteria) => {
 
 
 const handle_Insert = (req, res, newDoc) => {
-    console.log("newDoc: "+JSON.stringify(newDoc));
-    // res.status(200).render('RestaurantDoc',{
-    //     "doc":newDoc
-    // });
+
+
+    console.log("new Doc = "+newDoc);
 }
 
 
