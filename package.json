@@ -14,7 +14,10 @@
     "cookie-session": "^1.4.0",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
     "formidable": "^1.2.2",
-    "mongodb": "^3.6.3"
+    "mongodb": "^3.6.3",
+    "package": "^1.0.1",
+    "package.json": "^2.0.1"
   }
 }

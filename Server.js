@@ -7,8 +7,9 @@ const ObjectID = require('mongodb').ObjectID;
 const assert = require('assert');
 const http = require('http');
 const url = require('url');
-const formidable = require('formidable');
+const formidable = require('express-formidable');
 const fs = require("fs");
+
 const { Certificate } = require('crypto');
 const { compile } = require('ejs');
 
@@ -38,6 +39,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+app.use(formidable());
 
 app.get('/', (req, res) => {
     // console.log(req.session);
@@ -116,6 +119,8 @@ app.get('/display', (req, res) => {
 
 app.get("/newDoc", (req, res) => {
     res.status(200).render('InsertRestaurant');
+    // console.log("req.query : " + req.query);
+    //handle_Insert(req,res);
 });
 
 app.post("/insert", (req, res) => {
@@ -172,16 +177,44 @@ app.post("/rate",(req,res)=>{
         }
     });
 
+app.get("/gmap", (req,res) => {
+	res.render("leaflet.ejs", {
+		lat:req.query.lat,
+		lon:req.query.lon,
+		zoom:req.query.zoom ? req.query.zoom : 18
+	});
+	res.end();
 
 });
 
+app.get("/remove",(req,res) => {
+ handle_Delete(res, req, req.query);
+})
 
+app.post('/update', (req,res) => {
+    handle_Update(res, req, req.query);
+});
 
+app.get('/edit',(req,res)=>{
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
 
-
-
-
-
+        /* use Document ID for query */
+        let DOCID = {};
+        DOCID['_id'] = ObjectID(req.query._id)
+        findDocument(db, DOCID, (docs) => { // docs contain 1 document (hopefully)
+            client.close();
+            console.log("Closed DB connection");
+            console.log("docs[0]: " + JSON.stringify(docs[0]));
+            res.status(200).render('edit', {
+                doc: docs[0]
+            });
+        });
+    });
+})
 // --------------------------  CRUD operations  ---------------------------------------
 
 const findDocument = (db, criteria, callback) => {
@@ -194,14 +227,39 @@ const findDocument = (db, criteria, callback) => {
 }
 
 const insertDocument = (db, RestaurantDoc, callback) => {
-     db.collection('Restaurants').insert(RestaurantDoc);
-    console.log(`Document to insert : ${JSON.stringify(RestaurantDoc)}`);
-    
-        callback(RestaurantDoc); // pass the result(array) to the callback function(caller's)
+    db.collection('Restaurants').insert(RestaurantDoc);
+   console.log(`Document to insert : ${JSON.stringify(RestaurantDoc)}`);
+   
+       callback(RestaurantDoc); // pass the result(array) to the callback function(caller's)
 
 }
 
+const deleteDocument = (db, criteria, callback) => {
+    db.collection('Restaurants').deleteMany(criteria, (err,results) => {
+        assert.equal(err,null);
+        console.log('deleteMany was successful');
+        callback(results);
+    })
+}
+const updateDocument = (criteria, updateDoc, callback) => {
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
 
+         db.collection('Restaurants').updateOne(criteria,
+            {
+                $set : updateDoc
+            },
+            (err, results) => {
+                client.close();
+                assert.equal(err, null);
+                callback(results);
+            }
+        );
+    });
+}
 // ---------------------------------------------------------------------------------------
 
 const handle_Find = (req, res, criteria) => {
@@ -213,6 +271,10 @@ const handle_Find = (req, res, criteria) => {
 
         findDocument(db, criteria, (docs) => {
             client.close();
+            console.log("Closed DB connection");
+            //console.log(docs);
+            console.log("documents found: " + docs.length);
+            console.log("req.session.name :" + req.session.username)
             res.status(200).render('welcomePage', {
                 name: req.session.username,
                 length: docs.length,
@@ -266,17 +328,81 @@ const handle_Insert = (req, res, newDoc) => {
 }
 
 
-
-const handleRate=  (req,res)=>{
-
+const handle_Delete = (res, req, criteria) => {
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+    	let DOCID = {};
+        DOCID['_id'] = ObjectID(criteria._id);
+	    findDocument(db, DOCID, (docs) => { // docs contain 1 document (hopefully)
+            console.log("docs[0]: " + JSON.stringify(docs[0]));
+		    if (req.session.username == req.session.username){
+            	deleteDocument(db, DOCID, (results) => {
+                res.status(200).render('Delete');
+                client.close();
+                console.log("Closed DB connection");
+                });     
+            }
+	        else{
+                res.status(200).render('warning');
+                client.close();
+                console.log("Closed DB connection");            
+            }
+        });
+    });
 }
 
-
-
-
-
-
-
-
+const handle_Update = (res, req, criteria) => {
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+        console.log(req.fields.name);
+        var DOCID = {};
+        DOCID['_id'] = ObjectID(req.fields._id);
+        findDocument(db, DOCID, (docs) => {     
+            if (req.session.username == req.session.username){    
+                var updateDoc = {};
+                updateDoc["name"]= req.fields.name;
+                updateDoc["cuisine"]= req.fields.cuisine;
+                updateDoc["borough"]= req.fields.borough;
+                var address={};
+                address["street"]= req.fields.street;
+                address["zipcode"] = req.fields.zipcode;
+                address["building"]= req.fields.building;
+                address ["coord"]=[req.fields.lon , req.fields.lat];
+                updateDoc["address"]= address;
+                //updateDoc["owner"]=req.flields.owner;
+                    if (req.files.fileToUpload.size > 0) {
+                        fs.readFile(req.files.fileToUpload.path, (err,data) => {
+                        updateDoc['photo'] = new Buffer.from(data).toString('base64');
+                        updateDocument(DOCID, updateDoc, (results) => {
+                            console.log(results.reuslt.nModified);
+                            res.redirect('/');
+                            
+                        });
+                    });
+                } 
+                    else {
+                    updateDocument(DOCID, updateDoc, (results) => {
+                        console.log(results.result.nModified);
+                        res.redirect('/');
+                        
+                    });
+                }
+                client.close();
+                console.log("Closed DB connection");
+            }    
+            else{
+                res.status(200).render('warning');
+                client.close();
+                console.log("Closed DB connection");  
+            }
+        });
+    });
+}
 
 app.listen(process.env.PORT || 8099);
