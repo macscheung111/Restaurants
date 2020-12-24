@@ -10,6 +10,7 @@ const url = require('url');
 const formidable = require('formidable');
 const fs = require("fs");
 const { Certificate } = require('crypto');
+const { compile } = require('ejs');
 
 const mongourl = 'mongodb+srv://macs111:1997111@cluster0.zkyft.mongodb.net/381Project?retryWrites=true&w=majority';
 const dbName = '381Project';
@@ -156,9 +157,22 @@ app.post("/insert", (req, res) => {
 
 app.post("/rate",(req,res)=>{
     let criteria ={"_id":req.query._id};
-    let newRate = {"grade":req.query.score ,"user":req.session.username }
+    let newRate = {"grade":req.query.score ,"user":req.session.username };
 
-    findDocument(req,criteria,callback) 
+    let cursor = db.collection('Restaurants').find(criteria);
+    console.log(`findDocument criteria: ${JSON.stringify(criteria)}`);
+    cursor.toArray((err, docs) => {
+        assert.equal(err, null);
+        for(grade of docs[0].grades){
+            if(grade.user === req.session.username){
+                console.log("you have rated once");
+            }else{
+                //update
+            }
+        }
+    });
+
+
 });
 
 
