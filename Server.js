@@ -244,7 +244,7 @@ app.get('/edit', (req, res) => {
 
 const findDocument = (db, criteria, callback) => {
     let cursor = db.collection('Restaurants').find(criteria);
-    console.log(`findDocument criteria: ${JSON.stringify(criteria)}`);
+    console.log(`find document criteria: ${JSON.stringify(criteria)}`);
     cursor.toArray((err, docs) => {
         assert.equal(err, null);
        // console.log("docs found:" + JSON.stringify(docs));
@@ -444,8 +444,6 @@ const handle_Rate = (req, res) => {
                     break;
                 }
             }
-
-
             res.status(200).render("rate", {
                 name: req.session.username,
                 _id: criteria._id,
@@ -462,16 +460,50 @@ const handle_Rate = (req, res) => {
 
 //------------------------------ handle API ----------------------------------
 
+const handle_Find_API = (req, res, criteria) => {
+    const client = new MongoClient(mongourl);
+    client.connect((err) => {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+
+        findDocument(db, criteria, (docs) => {
+            client.close();
+            console.log("Closed DB connection");
+            console.log("docs: "+JSON.stringify(docs));
+            if(docs.length===0){
+                res.status(200).json({}).end();
+            }else{
+            res.status(200).json(docs[0]).end();
+            }
+        });
+    });
+}
 
 
 
 
+app.get('/api/restaurant/name/:rName', (req,res) => {
+     var criteria ={};
+     criteria["name"] = req.params.rName;
+    handle_Find_API(req,res,criteria);
+});
 
+app.get('/api/restaurant/borough/:rBorough', (req,res) => {
+    var criteria ={};
+    criteria["borough"] = req.params.rBorough;
+   handle_Find_API(req,res,criteria);
+});
 
+app.get('/api/restaurant/cuisine/:rCuisine', (req,res) => {
+    var criteria ={};
+    criteria["cuisine"] = req.params.rCuisine;
+   handle_Find_API(req,res,criteria);
+});
 
-
-
-
+app.get('*',function(req,res){
+    res.status(404).end('File not found');
+});
 
 
 
