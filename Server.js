@@ -227,19 +227,27 @@ app.get('/edit', (req, res) => {
         assert.equal(null, err);
         console.log("Connected successfully to server");
         const db = client.db(dbName);
-
-        /* use Document ID for query */
+         /* use Document ID for query */
         let DOCID = {};
         DOCID['_id'] = ObjectID(req.query._id)
-        findDocument(db, DOCID, (docs) => { // docs contain 1 document (hopefully)
+        findDocument(db, DOCID, (docs) => { 
             client.close();
             console.log("Closed DB connection");
-            res.status(200).render('edit', {
+            if (req.session.username == docs[0].owner ) {
+            // docs contain 1 document (hopefully)
+                res.status(200).render('edit', {
                 doc: docs[0]
             });
-        });
+        }
+        else {
+            res.status(200).render('warning');
+            client.close();
+            console.log("Closed DB connection");
+        }
+
     });
 })
+});
 // --------------------------  CRUD operations  ---------------------------------------
 
 const findDocument = (db, criteria, callback) => {
@@ -358,7 +366,7 @@ const handle_Delete = (res, req, criteria) => {
         let DOCID = {};
         DOCID['_id'] = ObjectID(criteria._id);
         findDocument(db, DOCID, (docs) => { // docs contain 1 document (hopefully)
-            if (req.session.username == req.session.username) {
+            if (req.session.username == docs[0].owner ) {
                 deleteDocument(db, DOCID, (results) => {
                     res.status(200).render('Delete');
                     client.close();
@@ -382,7 +390,6 @@ const handle_Update = (res, req, criteria) => {
         var DOCID = {};
         DOCID['_id'] = ObjectID(req.fields._id);
         findDocument(db, DOCID, (docs) => {
-            if (req.session.username == req.session.username) {
                 var updateDoc = {};
                 updateDoc["name"] = req.fields.name;
                 updateDoc["cuisine"] = req.fields.cuisine;
@@ -410,11 +417,7 @@ const handle_Update = (res, req, criteria) => {
                 }
                 client.close();
                 console.log("Closed DB connection");
-            } else {
-                res.status(200).render('warning');
-                client.close();
-                console.log("Closed DB connection");
-            }
+             
         });
     });
 }
