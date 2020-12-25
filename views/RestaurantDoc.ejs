@@ -1,68 +1,99 @@
 <html>
+
 <head>
-<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-<meta charset="utf-8">
-<title><%=doc.name%></title>
-<style>
-  /* Always set the map height explicitly to define the size of the div
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <title>
+    <%=doc.name%>
+  </title>
+  <style>
+    /* Always set the map height explicitly to define the size of the div
    * element that contains the map. */
-  #map {
-    height: 100%;
-  }
-  /* Optional: Makes the sample page fill the window. */
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-</style>
-<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    #map {
+      height: 100%;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
 </head>
+
 <body>
-<script async defer
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp36-mp_8b8&callback=loadMap"></script>
-<div class="w3-container w3-teal">
-  <h1><%=doc.name%></h1>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkfp0OSPZ0fl8ZF3a0tea-mp36-mp_8b8&callback=loadMap"></script>
+  <div class="w3-container w3-teal">
+    <h1>
+      <%=doc.name%>
+    </h1>
 
-  <!-- img here -->
-</div>
+    <!-- img here -->
+  </div>
 
-<div class="w3-container">
-<p>
-<label class="w3-label w3-validate">Borough: </label><%=doc.borough%></p>
-<label class="w3-label w3-validate">Cuisine: </label><%=doc.cuisine%></p>
-<label class="w3-label w3-validate">Street: </label><%=doc.address.street%></p>
-<label class="w3-label w3-validate">Building: </label><%=doc.address.building%></p>
-<label class="w3-label w3-validate">Zipcode: </label><%=doc.address.zipcode%></p>
-<label class="w3-label w3-validate">GPS: </label>[<%=doc.address.coord[0]%> , <%=doc.address.coord[1]%> ]</p>
-<label class="w3-label w3-validate">Rating: </label></p>
+  <div class="w3-container">
+    <p>
+      <label class="w3-label w3-validate">Borough: </label>
+      <%=doc.borough%>
+    </p>
+    <label class="w3-label w3-validate">Cuisine: </label>
+    <%=doc.cuisine%>
+      </p>
+      <label class="w3-label w3-validate">Street: </label>
+      <%=doc.address.street%>
+        </p>
+        <label class="w3-label w3-validate">Building: </label>
+        <%=doc.address.building%>
+          </p>
+          <label class="w3-label w3-validate">Zipcode: </label>
+          <%=doc.address.zipcode%>
+            </p>
+            <label class="w3-label w3-validate">GPS: </label>[<%=doc.address.coord[0]%> , <%=doc.address.coord[1]%> ]
+                </p>
+                <label class="w3-label w3-validate">Rating: </label></p>
 
-  <ol>
-    <%for(eachScore of doc.grades)  { %>
-      <li><%= eachScore.score%> (  <%=name%>  ) </li>
-      <% } %>
-  </ol>
+                <ol>
+                  <%for(eachScore of doc.grades) { %>
+                    <li>
+                      score:  <%= eachScore.grade%> ( <%=eachScore.user%> )
+                    </li>
+                    <% } %>
+                </ol>
 
-<p>
-<label class="w3-label w3-validate">Created by: </label> <%=name%> </p>
-<p>
-</div>
+                <p>
+                  <label class="w3-label w3-validate">Created by: </label>
+                  <%=name%>
+                </p>
+
+                  <%  if(doc.hasOwnProperty("photo")){  %>
+                <p>
+                  <label class="w3-label w3-validate">Photo : </label>
+                  <img class="w3-image w3-border w3-padding" style="width:100%"
+                    src="data: image/jpeg;base64,<%=doc.photo%>">
+                </p>
+                  <% } %>
+  </div>
 
   <a href="/gmap?lat=<%=doc.address.coord[0]%>&lon=<%=doc.address.coord[1]%>&title=<%=doc.name%>">Map</a>
 
-<div class="w3-container">
-<a href="/rate?_id=5<%= doc._id %>&ampname=<%=doc.name%>" style="text-decoration: none">
-    <button class="w3-btn w3-section w3-teal w3-ripple">Rate</button>
-</a>
-<a href="/edit?_id=<%= doc._id %>" style="text-decoration: none">
-  <button class="w3-btn w3-section w3-teal w3-ripple">Edit</button>
-</a>
-<a href="/remove?_id=<%= doc._id %>" style="text-decoration: none">
-  <button class="w3-btn w3-section w3-teal w3-ripple">Delete</button>
-</a>
-<a href="/" style="text-decoration: none">
-  <button class="w3-btn w3-section w3-teal w3-ripple">Back</button>
-</a>
-</div>
+  <div class="w3-container">
+    <a href="/enterRate?_id=<%= doc._id %>&ampname=<%=doc.name%>" style="text-decoration: none">
+      <button class="w3-btn w3-section w3-teal w3-ripple">Rate</button>
+    </a>
+    <a href="/edit?_id=<%= doc._id %>" style="text-decoration: none">
+      <button class="w3-btn w3-section w3-teal w3-ripple">Edit</button>
+    </a>
+    <a href="/remove?_id=<%= doc._id %>" style="text-decoration: none">
+      <button class="w3-btn w3-section w3-teal w3-ripple">Delete</button>
+    </a>
+    <a href="/" style="text-decoration: none">
+      <button class="w3-btn w3-section w3-teal w3-ripple">Back</button>
+    </a>
+  </div>
 </body>
+
 </html>
